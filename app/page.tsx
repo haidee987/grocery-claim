@@ -39,6 +39,27 @@ function Steps({ at }: { at: 1 | 2 | 3 }) {
   );
 }
 
+function Shell({ user, onLogout, children }: { user: User | null; onLogout: () => void; children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-[#eef4ea] text-[#16251d]">
+      <header className="bg-[#1f6b4f] px-4 py-3 text-white">
+        <div className="mx-auto flex max-w-md items-center justify-between">
+          <span className="text-lg font-bold">🛒 Prize Claim</span>
+          {user && <button onClick={onLogout} className="rounded-lg bg-white/15 px-3 py-1.5 text-sm">Log out</button>}
+        </div>
+      </header>
+      <main className="mx-auto max-w-md px-4 py-6">{children}</main>
+    </div>
+  );
+}
+
+function Alert({ err, ok }: { err: string; ok: string }) {
+  return (<>
+    {err && <p role="alert" className="mb-4 rounded-xl bg-[#fde8e6] px-4 py-3 text-sm text-[#8a1c14]">{err}</p>}
+    {ok && <p role="status" className="mb-4 rounded-xl bg-[#d8f0e4] px-4 py-3 text-sm text-[#14543b]">{ok}</p>}
+  </>);
+}
+
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [prizes, setPrizes] = useState<Prize[]>([]);
@@ -79,25 +100,9 @@ export default function Home() {
 
   if (!ready) return <main className="grid min-h-screen place-items-center bg-[#eef4ea] text-[#5a6b60]">Loading…</main>;
 
-  const Shell = ({ children }: { children: React.ReactNode }) => (
-    <div className="min-h-screen bg-[#eef4ea] text-[#16251d]">
-      <header className="bg-[#1f6b4f] px-4 py-3 text-white">
-        <div className="mx-auto flex max-w-md items-center justify-between">
-          <span className="text-lg font-bold">🛒 Prize Claim</span>
-          {user && <button onClick={logout} className="rounded-lg bg-white/15 px-3 py-1.5 text-sm">Log out</button>}
-        </div>
-      </header>
-      <main className="mx-auto max-w-md px-4 py-6">{children}</main>
-    </div>
-  );
-  const Alert = () => (<>
-    {err && <p role="alert" className="mb-4 rounded-xl bg-[#fde8e6] px-4 py-3 text-sm text-[#8a1c14]">{err}</p>}
-    {ok && <p role="status" className="mb-4 rounded-xl bg-[#d8f0e4] px-4 py-3 text-sm text-[#14543b]">{ok}</p>}
-  </>);
-
   if (!user)
     return (
-      <Shell>
+      <Shell user={user} onLogout={logout}>
         <h1 className="text-3xl font-extrabold leading-tight">Won a grocery prize?<br />Log in to claim it.</h1>
         <p className="mb-6 mt-2 text-[#4b5d52]">Use the full name you entered in the promo.</p>
         <div className="mb-5 grid grid-cols-2 rounded-xl bg-[#dbe7d7] p-1 text-sm font-semibold">
@@ -107,7 +112,7 @@ export default function Home() {
             </button>
           ))}
         </div>
-        <Alert />
+        <Alert err={err} ok={ok} />
         <div className="space-y-4">
           <div><label className={label} htmlFor="n">Full name</label>
             <input id="n" className={field} value={name} autoComplete="name" placeholder="e.g. Juan Santos" onChange={(e) => setName(e.target.value)} /></div>
@@ -134,9 +139,9 @@ export default function Home() {
   const step = !mine ? 1 : mine.status === "pending" ? 2 : 3;
 
   return (
-    <Shell>
+    <Shell user={user} onLogout={logout}>
       <h1 className="mb-1 text-2xl font-extrabold">Hi, {user.name.split(" ")[0]} 👋</h1>
-      <Alert />
+      <Alert err={err} ok={ok} />
       {!mine ? (
         <div className="mb-6 rounded-2xl bg-white p-5">
           <p className="font-semibold">No prize under this name yet</p>
@@ -213,10 +218,7 @@ export default function Home() {
                   <li key={p.username} className="flex items-center justify-between gap-3 py-3">
                     <div className="min-w-0"><p className="truncate font-semibold">{p.name}</p>
                       <p className="text-sm text-[#5a6b60]">{peso(p.amount)}{p.claimCode ? " · " + p.claimCode : ""}</p></div>
-                    <span className={"rounded-full px-2.5 py-1 text-xs font-semibold " + (STATUS[p.status as keyof typeof STATUS]?.cls ?? "bg-gray-100 text-gray-800")}>
-  {STATUS[p.status as keyof typeof STATUS]?.text ?? p.status ?? "Pending"}
-</span>
-
+                    <span className={"shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold " + STATUS[p.status].cls}>{STATUS[p.status].text}</span>
                   </li>
                 ))}
               </ul>
