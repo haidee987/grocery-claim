@@ -26,6 +26,8 @@ const STATUS = {
   redeemed: { text: "Collected", cls: "bg-[#e6e8e4] text-[#4b554e]" },
 };
 
+const st = (s: string) => STATUS[s as keyof typeof STATUS] ?? { text: s || "Unknown", cls: "bg-[#e6e8e4] text-[#4b554e]" };
+
 function Steps({ at }: { at: 1 | 2 | 3 }) {
   const items = ["Log in", "Enter PIN", "Show code at store"];
   return (
@@ -153,7 +155,7 @@ export default function Home() {
           <Steps at={step as 1 | 2 | 3} />
           <div className="relative mb-6 overflow-hidden rounded-2xl bg-white shadow-[0_2px_0_#c9d8c5]">
             <div className="p-5 text-center">
-              <span className={"inline-block rounded-full px-3 py-1 text-xs font-semibold " + STATUS[mine.status].cls}>{STATUS[mine.status].text}</span>
+              <span className={"inline-block rounded-full px-3 py-1 text-xs font-semibold " + st(mine.status).cls}>{st(mine.status).text}</span>
               <p className="mt-3 text-sm text-[#4b5d52]">Grocery prize</p>
               <p className="text-5xl font-extrabold text-[#1f6b4f]">{peso(mine.amount)}</p>
             </div>
@@ -218,7 +220,7 @@ export default function Home() {
                   <li key={p.username} className="flex items-center justify-between gap-3 py-3">
                     <div className="min-w-0"><p className="truncate font-semibold">{p.name}</p>
                       <p className="text-sm text-[#5a6b60]">{peso(p.amount)}{p.claimCode ? " · " + p.claimCode : ""}</p></div>
-                    <span className={"shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold " + STATUS[p.status].cls}>{STATUS[p.status].text}</span>
+                    <span className={"shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold " + st(p.status).cls}>{st(p.status).text}</span>
                   </li>
                 ))}
               </ul>
